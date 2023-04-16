@@ -1,79 +1,66 @@
 package com.example.mapp
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import android.widget.ImageView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.mapp.data.ItemsViewModel
+import com.example.mapp.data.Movies
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 
 
 class MainActivity : AppCompatActivity() {
 
-    // See: https://developer.android.com/training/basics/intents/result
-    private val signInLauncher = registerForActivityResult(
-        FirebaseAuthUIActivityResultContract()
-    ) { res ->
-        this.onSignInResult(res)
-    }
-
-    private lateinit var database: DatabaseReference
-
+    lateinit var imageView: ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("logsTest", "log from Create Main Activity")
-        // Choose authentication providers
 
 
+        // getting the recyclerview by its id
+        val recyclerview = findViewById<RecyclerView>(R.id.recyclerview)
 
-        val intent = Intent(this, MoviesActivity::class.java)
-        intent.putExtra("simpleCode", "answer")
-        startActivity(intent)
+        // this creates a vertical layout Manager
+        recyclerview.layoutManager = GridLayoutManager(this, 2)
+
+        val data = ArrayList<ItemsViewModel>()
+
+        data.add(ItemsViewModel("https://api.themoviedb.org/3/movie/popular/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg"))
 
 
+        val apiInterface = ApiInterface.create().getMovies(Constants.api_key)
 
+        apiInterface.enqueue(object : Callback<Movies>, CustomAdapter.ItemClickListener {
+            override fun onResponse(call: Call<Movies>?, response: Response<Movies>?) {
+                val adapter = CustomAdapter(response?.body()?.results, this)
+                recyclerview.adapter = adapter
 
+                Log.d("logsTEst", "onResponse Success ${response?.body()?.results}")
 
+            }
 
+            override fun onFailure(call: Call<Movies>?, t: Throwable?) {
+                Log.d("logsTEst", "onResponse Failure ${t.toString()}")
+            }
 
-//        val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build())
-//        // Create and launch sign-in intent
-//
-//        val signInIntent = AuthUI.getInstance()
-//            .createSignInIntentBuilder()
-//            .setIsSmartLockEnabled(false)
-//            .setAvailableProviders(providers)
-//            .build()
-//        signInLauncher.launch(signInIntent) // запустили экран firebase
+            override fun onItemClick(id: Int) {
+
+                val intent = Intent(this@MainActivity, MoviesDetailsActivity::class.java)
+                intent.putExtra("id", id)
+                startActivity(intent)
+            }
+        })
 
     }
 
-    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse // результат с экрана Firebase auth
-        if (result.resultCode == RESULT_OK) {
-            // Successfully signed in
-            Log.d("logsTest", "onSignInResult success ${response?.email}")
-            val authUser = FirebaseAuth.getInstance().currentUser // создаем текущий объект текущего пользователя
-            database = Firebase.database.reference
-           authUser?.let { // если пользователь "существует", сохраняем его в БД
-                val userFirebase = User(authUser.email.toString(), it.uid)
-                database.child("users").child(authUser?.uid.toString()).setValue(userFirebase)
-
-               val intent = Intent(this, MoviesActivity::class.java)
-               intent.putExtra("simpleCode", "answer")
-               startActivity(intent)
-
-           }
-            Log.d("logsTest", "onSignInResult success ${response?.email}")
-        } else {
-        }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finishAffinity()
     }
-
 }

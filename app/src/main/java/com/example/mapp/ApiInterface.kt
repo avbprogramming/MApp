@@ -1,9 +1,12 @@
 package com.example.mapp
 
+import com.example.mapp.data.MovieDetails
+import com.example.mapp.data.Movies
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiInterface {
@@ -13,7 +16,8 @@ interface ApiInterface {
 
 
 
-
+@GET("/3/movie/{movie_id}")
+fun getMovieDetails(@Path("movie_id") movieId : Int, @Query ("api_key") api_key: String) :Call<MovieDetails>
 
     companion object {
 

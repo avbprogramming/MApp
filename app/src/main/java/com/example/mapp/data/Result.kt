@@ -1,4 +1,4 @@
-package com.example.mapp
+package com.example.mapp.data
 
 data class Result(
     val adult: Boolean,
