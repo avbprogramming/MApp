@@ -1,4 +1,4 @@
-package com.example.mapp
+package com.example.mapp.model.apis
 
 import com.example.mapp.data.MovieDetails
 import com.example.mapp.data.Movies
@@ -12,18 +12,23 @@ import retrofit2.http.Query
 interface ApiInterface {
 
     @GET("3/movie/popular")
-    fun getMovies(@Query ("api_key") api_key: String) : Call<Movies>
+    fun getMovies(
+        @Query("api_key") api_key: String,
+        @Query("language") language: String,
+        @Query("page") page: Int,
+    ): Call<Movies>
 
-
-
-@GET("/3/movie/{movie_id}")
-fun getMovieDetails(@Path("movie_id") movieId : Int, @Query ("api_key") api_key: String) :Call<MovieDetails>
+    @GET("/3/movie/{movie_id}")
+    fun getMovieDetails(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") api_key: String,
+    ): Call<MovieDetails>
 
     companion object {
 
         var BASE_URL = "https://api.themoviedb.org/"
 
-        fun create() : ApiInterface {
+        fun create(): ApiInterface {
 
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())

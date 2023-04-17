@@ -1,15 +1,17 @@
-package com.example.mapp
+package com.example.mapp.view.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mapp.R
 import com.example.mapp.data.Result
 import com.squareup.picasso.Picasso
 
-class CustomAdapter(private val mList: List<Result>?,
-                    val mItemClickListener: ItemClickListener) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+class CustomAdapter(private val mList: List<Result?>,
+                    val mItemClickListener: ItemClickListener
+) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
     interface ItemClickListener{
         fun onItemClick(position: Int)
@@ -25,7 +27,7 @@ class CustomAdapter(private val mList: List<Result>?,
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val ItemsViewModel = mList?.get(position)
+        //val ItemsViewModel = mList?.get(position)
             Picasso.get().load("https://image.tmdb.org/t/p/w500" + mList?.get(position)?.poster_path).into(holder.imageView)
 
     }
@@ -36,7 +38,7 @@ class CustomAdapter(private val mList: List<Result>?,
         val imageView: ImageView = itemView.findViewById(R.id.imageview)
         init{
             ItemView.setOnClickListener {
-             //   mItemClickListener.onItemClick(adapterPosition)
+
                 mList?.get(position)?.id?.let { it -> mItemClickListener.onItemClick(it) }
             }
         }
